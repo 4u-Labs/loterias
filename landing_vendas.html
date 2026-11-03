@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Loterias — O Gerador Inteligente de Jogos Baseado em Dados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #060913;
+      --bg-secondary: #0c1020;
+      --bg-card: rgba(18, 24, 43, 0.7);
+      --border-color: rgba(255, 255, 255, 0.06);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-color: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --indigo-color: #6366f1;
+      --indigo-glow: rgba(99, 102, 241, 0.15);
+      --gold-color: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.15);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Background Glows */
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(180px);
+      z-index: -1;
+      opacity: 0.15;
+    }
+
+    body::before {
+      background-color: var(--accent-color);
+      top: 5%;
+      left: -10%;
+    }
+
+    body::after {
+      background-color: var(--indigo-color);
+      bottom: 20%;
+      right: -10%;
+    }
+
+    .wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* Banner Container */
+    .banner-container {
+      width: 100%;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .banner-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Header styled as a card */
+    header {
+      padding: 40px 32px;
+      background-color: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 580px) {
+      .header-top {
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+      }
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo svg {
+      width: 36px;
+      height: 36px;
+      fill: none;
+      stroke: var(--accent-color);
+      stroke-width: 2.5;
+    }
+
+    .brand-logo span {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, #a3e635 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge-scientific {
+      display: inline-block;
+      background-color: var(--gold-glow);
+      border: 1px solid var(--gold-color);
+      color: var(--gold-color);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #ffffff 60%, var(--accent-color) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 28px;
+      }
+    }
+
+    .hero-subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    /* Panels styling */
+    .panel {
+      background-color: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .panel-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-primary);
+    }
+
+    .panel-title svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--accent-color);
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    /* Features list */
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      align-items: flex-start;
+    }
+
+    .feature-check {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-color);
+      flex-shrink: 0;
+    }
+
+    .feature-check svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 3;
+      fill: none;
+    }
+
+    .feature-text h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .feature-text p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* CTA Section */
+    .cta-box {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .price-tag {
+      margin-bottom: 8px;
+    }
+
+    .price-value {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .price-value span {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .btn-buy {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--accent-color), #059669);
+      color: #060913;
+      padding: 20px 44px;
+      border-radius: var(--radius-md);
+      font-size: 18px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+      transition: all var(--transition-speed);
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+      color: #ffffff;
+    }
+
+    .btn-buy svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      transition: transform var(--transition-speed);
+    }
+
+    .btn-buy:hover svg {
+      transform: translateX(4px);
+    }
+
+    .cta-subnote {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* FAQ CSS */
+    .faq-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+      transition: background var(--transition-speed);
+    }
+
+    .faq-question {
+      padding: 18px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .faq-question svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-secondary);
+      stroke-width: 2.5;
+      fill: none;
+      transition: transform var(--transition-speed);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: all var(--transition-speed) ease-out;
+      line-height: 1.6;
+    }
+
+    .faq-item.active {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .faq-item.active .faq-question svg {
+      transform: rotate(180deg);
+      stroke: var(--indigo-color);
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding-bottom: 20px;
+    }
+
+    /* Disclaimer Section */
+    .disclaimer-block {
+      background: rgba(239, 68, 68, 0.06);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .disclaimer-icon {
+      color: #ef4444;
+      flex-shrink: 0;
+    }
+
+    .disclaimer-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    .disclaimer-content h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fca5a5;
+      margin-bottom: 6px;
+    }
+
+    .disclaimer-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      margin-top: 20px;
+    }
+
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    
+    <!-- Top banner -->
+    <div class="banner-container">
+      <img src="bannerretangular.png" alt="Super Loterias Banner" class="banner-img">
+    </div>
+
+    <!-- Header / Hero Card -->
+    <header>
+      <div class="header-top">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <span>Super Loterias</span>
+        </div>
+        <div class="badge-scientific">Análise Científica</div>
+      </div>
+      <h1>Multiplique suas Chances de Ganhar com Inteligência de Dados</h1>
+      <p class="hero-subtitle">Chega de jogar na sorte cega. Use algoritmos matemáticos e estatísticas históricas reais das loterias da Caixa a seu favor.</p>
+    </header>
+
+    <!-- Value Proposition / Features -->
+    <div class="panel">
+      <div class="panel-title">
+        <svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        O que você terá no sistema?
+      </div>
+      
+      <div class="features-list">
+        
+        <div class="feature-item">
+          <div class="feature-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="feature-text">
+            <h3>Gerador de Jogos Estatísticos Avançado</h3>
+            <p>Gere jogos balanceados automaticamente com base em filtros de números Quentes (mais frequentes), Frios (mais atrasados) e dezenas fixas ou excluídas.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="feature-text">
+            <h3>Módulo de Fechamentos Matemáticos</h3>
+            <p>Use o resolvedor algorítmico Set Covering para criar desdobramentos inteligentes de dezenas. Economize muito dinheiro jogando cartões com garantia matemática de premiação.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="feature-text">
+            <h3>Calculadora e Simulador de Bolão</h3>
+            <p>Planeje suas apostas conjuntas definindo quantidade de cotas, taxa de administração para o organizador, custo oficial ou customizado de jogos e divisão proporcional de prêmio.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="feature-text">
+            <h3>Análise Dinâmica de Quadrantes, Pares e Primos</h3>
+            <p>Visualizações gráficas completas de comportamento histórico da Mega-Sena, Lotofácil, Quina, Lotomania, Dupla Sena e Timemania.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Purchase Panel -->
+    <div class="panel" style="border: 1px solid var(--accent-color); box-shadow: 0 15px 35px var(--accent-glow);">
+      <div class="cta-box">
+        <div class="panel-title" style="margin-bottom: 10px; color: var(--accent-color);">
+          <svg viewBox="0 0 24 24" style="stroke: var(--accent-color);"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Acesso Vitalício Liberado
+        </div>
+        <p style="color: var(--text-secondary); max-width: 500px; font-size: 14px;">Adquira hoje o Super Loterias e tenha acesso imediato e vitalício, incluindo todas as atualizações futuras automáticas de novos concursos.</p>
+        
+        <div class="price-tag">
+          <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 1px;">Acesso completo por apenas</div>
+          <div class="price-value">
+            R$ 97<span>,90</span>
+          </div>
+        </div>
+
+        <!-- O link de checkout ativo da Kiwify -->
+        <a href="https://pay.kiwify.com.br/AYNISQ8" class="btn-buy" target="_blank">
+          Quero Aumentar Minhas Chances!
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        
+        <div class="cta-subnote">Pagamento 100% seguro via Kiwify · Liberação imediata por e-mail</div>
+      </div>
+    </div>
+
+    <!-- FAQs -->
+    <div class="panel">
+      <div class="panel-title">
+        <svg viewBox="0 0 24 24"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Dúvidas Frequentes
+      </div>
+
+      <div class="faq-container">
+        
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Como vou receber meu acesso?
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="faq-answer">
+            Assim que a compra for aprovada pela Kiwify, você receberá por e-mail um arquivo de instruções de acesso. Basta entrar no link oficial, clicar na aba "Primeiro Acesso", digitar o seu e-mail de compra e definir sua senha pessoal.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            O sistema funciona no meu celular?
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="faq-answer">
+            Sim! O Super Loterias é totalmente responsivo e adaptado para funcionar perfeitamente em qualquer smartphone, tablet, notebook ou computador de mesa. Ele conta inclusive com tecnologia PWA para ser instalado na tela inicial do seu celular.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            É garantido que vou ganhar na loteria?
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="faq-answer">
+            Não. A loteria é um jogo probabilístico baseado em sorte e acaso. Qualquer sistema que prometa vitória garantida de prêmios principais está mentindo. A nossa ferramenta usa ciência e análise de dados para criar combinações inteligentes, eliminando palpites improváveis e aumentando matematicamente suas chances em relação a um jogo feito de forma totalmente aleatória.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            Existe mensalidade?
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="faq-answer">
+            Não! A licença oferecida nesta oferta é de pagamento único (Acesso Vitalício). Você paga uma única vez e terá acesso para sempre, incluindo todas as atualizações futuras e banco de dados atualizado a cada sorteio de forma automática.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Disclaimer / Warning Section -->
+    <div class="panel" style="border: 1px solid rgba(239, 68, 68, 0.15);">
+      <div class="disclaimer-block">
+        <div class="disclaimer-icon">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="disclaimer-content">
+          <h4>Nota de Transparência e Responsabilidade</h4>
+          <p>
+            O Super Loterias é uma plataforma de monitoramento estatístico e análise combinatória de dados públicos das Loterias Oficiais da Caixa. Nós fornecemos processamento matemático avançado (como o algoritmo Set Covering e balanceamento probabilístico de frequências) para ajudar o apostador a fazer escolhas informadas, conscientes e otimizadas.
+          </p>
+          <p style="margin-top: 8px;">
+            Este sistema não viola ou burla quaisquer sistemas oficiais de sorteio e não possui fins de facilitação ou garantia absoluta de prêmios. Jogue com responsabilidade.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 Super Loterias. Todos os direitos reservados.</p>
+      <p style="margin-top: 4px;">Suporte e contato técnico por <a href="https://4u.ia.br/#contact" target="_blank">4u.ia.br</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    // FAQ Accordion interaction
+    function toggleFaq(element) {
+      const faqItem = element.parentElement;
+      const isActive = faqItem.classList.contains('active');
+      
+      // Close all first
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // Open clicked one if not active
+      if (!isActive) {
+        faqItem.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

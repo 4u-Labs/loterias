@@ -12,7 +12,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Super Loterias">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20261120-2">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261120-2">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1038,6 +1039,11 @@
       }
     }
   </style>
+
+    <!-- 4u-Labs SEO & Standard Meta -->
+    <meta name="description" content="Central das Loterias ✦ Super App de Análise &amp; Palpites — Aplicativo Web gratuito da 4u-Labs em 4u.ia.br.">
+    <link rel="canonical" href="https://4u.ia.br/app/loterias/">
+    <meta property="og:type" content="website"><meta property="og:site_name" content="4u-Labs"><meta property="og:url" content="https://4u.ia.br/app/loterias/"><meta property="og:title" content="Central das Loterias ✦ Super App de Análise &amp; Palpites"><meta property="og:description" content="Central das Loterias ✦ Super App de Análise &amp; Palpites — Aplicativo Web gratuito da 4u-Labs em 4u.ia.br."><meta property="og:image" content="https://4u.ia.br/capa.webp">
 </head>
 <body class="theme-megasena">
   <!-- Mobile Navigation Header -->
@@ -3360,5 +3366,7 @@
     <div style="width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite;"></div>
     <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">Processando requisição...</span>
   </div>
+
+    <script defer src="/assets/4ulabs-ecosystem.js?v=20261122" data-fouru-i18n="1"></script>
 </body>
 </html>
